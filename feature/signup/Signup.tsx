@@ -259,7 +259,7 @@ export default function SignupForm() {
         formData.email,
         formData.emailVerificationCode,
       );
-      console.log(emailVerificationResult); // 원래 emailVerificationResult.status
+      console.log(emailVerificationResult);
       if (emailVerificationResult) {
         setModal({
           isOpen: true,
