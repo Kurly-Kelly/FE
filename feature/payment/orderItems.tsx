@@ -11,8 +11,8 @@ import {
 
 // OrderItem 타입 (JS라면 생략 가능)
 export interface OrderItem {
-  productId: number;
-  productName: string;
+  id: number;
+  name: string;
   price: number;
   quantity: number;
 }
@@ -45,12 +45,9 @@ export function OrderItems({ items }: OrderItemsProps) {
       </CollapsibleTrigger>
       <CollapsibleContent className="space-y-2">
         {displayItems.map((item) => (
-          <div
-            key={item.productId}
-            className="flex justify-between py-2 text-sm"
-          >
+          <div key={item.id} className="flex justify-between py-2 text-sm">
             <span>
-              {item.productName} x{item.quantity}
+              {item.name} x{item.quantity}
             </span>
             <span>{(item.price * item.quantity).toLocaleString()}원</span>
           </div>
