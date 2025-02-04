@@ -249,6 +249,10 @@ export default function SignupForm() {
                       value: 4,
                       message: "아이디는 4자 이상이어야 합니다",
                     },
+                    pattern: {
+                      value: /^(?=.*[A-Za-z])(?=.*\d)[A-Za-z\d]+$/,
+                      message: "아이디는 영문과 숫자의 조합이어야 합니다",
+                    },
                   })}
                   className="size-full rounded-md text-sm placeholder:text-[#CCCCCC]"
                 />
