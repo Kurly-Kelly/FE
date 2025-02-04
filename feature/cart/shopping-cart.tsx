@@ -17,8 +17,10 @@ interface CartItem {
   productName: string;
   quantity: number;
   price: number;
+  discount: number;
   imageUrls: string[];
   isSelected?: boolean;
+  discountPrice: number;
 }
 
 // 장바구니 데이터 타입
@@ -68,6 +70,7 @@ export const ShoppingCart = () => {
           Authorization: `Bearer ${token}`,
         },
       });
+      console.log(response);
 
       if (!response.data.cartItems || response.data.cartItems.length === 0) {
         // 장바구니가 비어있을 경우에도 오류로 처리하지 않고 상태를 초기화
@@ -227,13 +230,23 @@ export const ShoppingCart = () => {
     if (!cartData) return 0;
     return cartData.cartItems
       .filter((item) => selectedItems.includes(item.cartItemId))
-      .reduce((total, item) => total + item.price * item.quantity, 0);
+      .reduce(
+        (total, item) =>
+          total +
+          (item.price - item.price * (item.discount / 100)) * item.quantity,
+        0,
+      );
   };
 
   const calculateTotalPrice = (items: CartItem[]) => {
     return items
       .filter((item) => selectedItems.includes(item.cartItemId))
-      .reduce((total, item) => total + item.price * item.quantity, 0);
+      .reduce(
+        (total, item) =>
+          total +
+          (item.price - item.price * (item.discount / 100)) * item.quantity,
+        0,
+      );
   };
 
   if (authLoading || loading) return <div>Loading...</div>;
@@ -318,7 +331,6 @@ export const ShoppingCart = () => {
                 ))}
               </div>
             </div>
-
             <div className="mt-4 space-y-2">
               <div className="flex justify-between text-sm">
                 <span className="text-gray-500">상품금액</span>

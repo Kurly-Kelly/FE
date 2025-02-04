@@ -64,8 +64,8 @@ export default function BudgetSection() {
           discountStatus,
           currentPage,
           pageSize,
-          sortOption, // 추가
-          direction, // 추가
+          sortOption,
+          direction,
         );
 
         const { content, totalElements } = response;

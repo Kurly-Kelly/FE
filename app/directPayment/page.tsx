@@ -39,9 +39,10 @@ interface DeliveryAddress {
 
 interface OrderItem {
   id: number;
-  name: string;
+  productName: string;
   price: number;
   quantity: number;
+  discount: number;
 }
 
 interface CustomerInfo {
@@ -135,13 +136,16 @@ export default function DirectPaymentPage() {
   // 단일 주문상품 구성
   const orderItem: OrderItem = {
     id: productData.id,
-    name: productData.name,
+    productName: productData.name,
     price: productData.price,
     quantity: selectedQuantity,
+    discount: productData.discount,
   };
 
   // 결제 금액 계산
-  const subtotal = orderItem.price * orderItem.quantity;
+  const subtotal =
+    (orderItem.price - orderItem.price * (orderItem.discount / 100)) *
+    orderItem.quantity;
   const shippingFee = 3000;
   const total = subtotal + shippingFee;
 
