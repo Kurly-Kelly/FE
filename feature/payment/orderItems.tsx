@@ -11,10 +11,11 @@ import {
 
 // OrderItem 타입 (JS라면 생략 가능)
 export interface OrderItem {
-  productId: number;
+  id: number;
   productName: string;
   price: number;
   quantity: number;
+  discount: number;
 }
 
 interface OrderItemsProps {
@@ -32,6 +33,7 @@ export function OrderItems({ items }: OrderItemsProps) {
   // showMore = true → 전체 items 표시
   // showMore = false → 첫 번째 상품만 표시
   const displayItems = showMore ? items : [items[0]];
+  console.log(items);
 
   return (
     <Collapsible open={isOpen} onOpenChange={setIsOpen} className="space-y-2">
@@ -44,15 +46,21 @@ export function OrderItems({ items }: OrderItemsProps) {
         )}
       </CollapsibleTrigger>
       <CollapsibleContent className="space-y-2">
-        {displayItems.map((item) => (
+        {displayItems.map((item, index) => (
           <div
-            key={item.productId}
+            key={`${item.id}-${index}`}
             className="flex justify-between py-2 text-sm"
           >
             <span>
               {item.productName} x{item.quantity}
             </span>
-            <span>{(item.price * item.quantity).toLocaleString()}원</span>
+            <span>
+              {(
+                (item.price - item.price * (item.discount / 100)) *
+                item.quantity
+              ).toLocaleString()}
+              원
+            </span>
           </div>
         ))}
         {!showMore && items.length > 1 && (

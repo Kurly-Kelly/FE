@@ -113,7 +113,7 @@ export async function emailVerification(
     }
 
     console.log(response);
-    const isDuplicate = await response.data;
+    const isDuplicate = await response.data.status;
     return isDuplicate;
   } catch (error: any) {
     throw new Error(error.message || "서버에 문제가 발생했습니다.");
