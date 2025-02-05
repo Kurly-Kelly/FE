@@ -7,9 +7,6 @@ import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
 import { ScrollArea } from "@/components/ui/scroll-area";
 
-// 검색 결과를 필터링하는 컴포넌트
-import { ProductFilter } from "@/feature/search/search-result";
-
 import {
   searchProducts,
   getSuggestions,
@@ -22,7 +19,7 @@ export default function SearchFeature() {
   const [searchValue, setSearchValue] = useState(""); // 검색어
   const [suggestions, setSuggestions] = useState<string[]>([]); // 자동완성 추천어
   const [showResults, setShowResults] = useState(false); // 결과 화면 표시 여부
-  const [productFilters, setProductFilters] = useState<Product[]>([]); // 검색 결과 (→ ProductFilter에 넘김)
+  const [searchResults, setSearchResults] = useState<Product[]>([]);
   const [loadingSuggestions, setLoadingSuggestions] = useState(false);
 
   // 추천 검색어 & 급상승 검색어를 위한 state
@@ -84,8 +81,8 @@ export default function SearchFeature() {
     try {
       const products = await searchProducts(searchValue);
       console.log("검색 API 응답:", products);
-      setProductFilters(products);
-      setShowResults(true); // 검색 결과 화면으로 전환
+      setSearchResults(products);
+      setShowResults(true);
     } catch (error) {
       console.error("검색 오류:", error);
     }
@@ -95,10 +92,10 @@ export default function SearchFeature() {
     setSearchValue(keyword);
     try {
       const products = await searchProducts(keyword);
-      setProductFilters(products);
+      setSearchResults(products);
       setShowResults(true);
     } catch (error) {
-      console.error(" 검색 오류:", error);
+      console.error("검색 오류:", error);
     }
   };
 
@@ -107,22 +104,6 @@ export default function SearchFeature() {
     setSearchValue("");
     setSuggestions([]);
     setShowResults(false);
-  };
-
-  // 필터 변경 시
-  const handleFilterChange = async (filterParams: Record<string, any>) => {
-    // keyword도 포함해서 보내야 함
-    const params = {
-      keyword: searchValue, // 현재 검색 키워드
-      ...filterParams, // 체크박스 등에서 넘어온 필드
-    };
-
-    try {
-      const filtered = await fetchFilteredProducts(params);
-      setProductFilters(filtered);
-    } catch (error) {
-      console.error("필터 검색 오류:", error);
-    }
   };
 
   return (
@@ -180,21 +161,29 @@ export default function SearchFeature() {
         </ScrollArea>
       )}
 
-      {/* 검색 결과가 있을 때 → 필터 컴포넌트 렌더 */}
+      {/* 검색 결과 표시 부분 수정 */}
       {showResults && (
-        <>
-          {console.log(
-            "부모가 ProductFilter에 넘겨주는 productFilters:",
-            productFilters
-          )}
-
-          <ProductFilter
-            // 반드시 넘겨줘야 하는 props
-            results={productFilters}
-            totalItems={productFilters.length}
-            onFilterChange={handleFilterChange}
-          />
-        </>
+        <ScrollArea className="flex-grow">
+          <div className="p-4">
+            <h2 className="font-medium mb-3">검색 결과</h2>
+            <div className="space-y-2">
+              {searchResults.length === 0 ? (
+                <div className="text-sm text-gray-500">
+                  검색 결과가 없습니다.
+                </div>
+              ) : (
+                searchResults.map((product) => (
+                  <div
+                    key={product.id}
+                    className="p-2 rounded-md hover:bg-gray-100"
+                  >
+                    <span>{product.name}</span>
+                  </div>
+                ))
+              )}
+            </div>
+          </div>
+        </ScrollArea>
       )}
 
       {/* 검색 전 or 자동완성 이외 상태 - 추천/급상승  */}

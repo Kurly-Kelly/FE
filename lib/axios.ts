@@ -31,6 +31,7 @@ myApi.interceptors.response.use(
       }
     }
     return Promise.reject(error);
+    // eslint-disable-next-line prettier/prettier
   }
 );
 

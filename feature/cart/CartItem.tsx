@@ -4,14 +4,16 @@ import Image from "next/image";
 interface CartItemProps {
   item: {
     cartItemId: number;
+    productId: number;
     productName: string;
-    price: number;
     quantity: number;
-    imgURL: string;
+    price: number;
+    imgURL?: string;
+    imageUrls?: string[];
   };
   isSelected: boolean;
-  onSelect: (cartItemId: number) => void;
-  onUpdateQuantity: (cartItemId: number, newQuantity: number) => void;
+  onSelect: (id: number) => void;
+  onUpdateQuantity: (id: number, quantity: number) => void;
 }
 
 export function CartItem({
@@ -21,7 +23,8 @@ export function CartItem({
   onUpdateQuantity,
 }: CartItemProps) {
   // URL 문자열 파싱
-  let imageUrl = item.imgURL;
+  let imageUrl = item.imgURL || (item.imageUrls && item.imageUrls[0]) || "";
+
   if (typeof imageUrl === "string") {
     // 만약 이미지 URL이 "[url1, url2, url3]"와 같은 형식이라면 첫 번째 URL만 추출
     if (imageUrl.startsWith("[") && imageUrl.endsWith("]")) {

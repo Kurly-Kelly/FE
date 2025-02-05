@@ -11,11 +11,14 @@ export interface FilterCategory {
 }
 
 export interface Product {
-  id: string;
+  id: number;
   name: string;
-  category: string;
   price: number;
-  discount?: number|null;
+  description?: string;
   imageUrls: string[];
+  mainCategory: string;
+  subCategory: string;
+  category: string;
+  discount?: number | null;
   delivery: string[];
 }

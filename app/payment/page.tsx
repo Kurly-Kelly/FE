@@ -158,7 +158,8 @@ export default function OrderPage() {
     localStorage.setItem(ORDER_DATA_KEY, JSON.stringify(updatedOrderData));
     console.log(
       "[OrderPage] Updated deliveryNote and saved to localStorage:",
-      updatedOrderData,
+      // eslint-disable-next-line prettier/prettier
+      updatedOrderData
     );
   };
 

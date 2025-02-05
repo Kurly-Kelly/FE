@@ -1,0 +1,40 @@
+name: Blue-Green Deployment
+
+on:
+  push:
+    branches: [release]
+
+env:
+  NEXT_PUBLIC_SERVER_BASE_URL_BLUE: ${{ secrets.NEXT_PUBLIC_SERVER_BASE_URL_BLUE }}
+  NEXT_PUBLIC_SERVER_BASE_URL_GREEN: ${{ secrets.NEXT_PUBLIC_SERVER_BASE_URL_GREEN }}
+
+jobs:
+  deploy:
+    runs-on: ubuntu-latest
+
+    steps:
+      - uses: actions/checkout@v3
+
+      - name: Set up Node.js
+        uses: actions/setup-node@v3
+        with:
+          node-version: "18"
+
+      - name: Install dependencies
+        run: npm install
+
+      - name: Build application
+        run: npm run build
+
+      - name: Deploy to EC2
+        uses: appleboy/ssh-action@master
+        with:
+          host: ${{ secrets.EC2_HOST }}
+          username: ec2-user
+          key: ${{ secrets.EC2_SSH_KEY }}
+          script: |
+            cd /home/ec2-user/frontend
+            git pull
+            npm install
+            npm run build
+            pm2 restart next

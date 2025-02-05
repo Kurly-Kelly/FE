@@ -51,7 +51,7 @@ export default function ProductList() {
 
   // mainParam에 따른 서브카테고리 목록
   const currentCategory = categories.find(
-    (category) => category.name === mainParam,
+    (category) => category.name === mainParam
   );
   const subcategories = currentCategory?.subCategories || [];
 
@@ -82,14 +82,15 @@ export default function ProductList() {
       setLoading(true);
       setError(null);
       try {
-        let data;
-        let totalCount;
+        let data: Product[]; // Product 타입 명시
+        let totalCount: number;
+
         if (selectedTab === "전체보기" && mainParam) {
           const mainCategoryCode = mainCategoryMapping[mainParam] || mainParam;
           const response = await fetchProductsByMainCategory(
             mainCategoryCode,
             currentPage,
-            pageSize,
+            pageSize
           );
           data = response.content; // 상품 데이터
           totalCount = response.totalElements; // 총 상품 개수
@@ -98,7 +99,7 @@ export default function ProductList() {
           const response = await fetchProducts(
             apiCategory,
             currentPage,
-            pageSize,
+            pageSize
           );
           data = response.content;
           totalCount = response.totalElements;
@@ -106,28 +107,31 @@ export default function ProductList() {
 
         if (auth?.isLoggedIn && auth?.userInfo) {
           const productsWithLikeStatus = await Promise.all(
-            data.map(async (product) => {
+            data.map(async (product: Product) => {
+              // Product 타입 명시
               try {
                 const isLiked = await checkIsLiked(
                   auth.userInfo!.username,
-                  product.id,
+                  Number(product.id)
                 );
                 return { ...product, isLiked };
               } catch (error) {
                 console.error(
                   `좋아요 상태 확인 실패(상품 ID: ${product.id}:`,
-                  error,
+                  error
                 );
                 return { ...product, isLiked: false };
               }
-            }),
+            })
           );
           setProducts(productsWithLikeStatus);
         } else {
-          setProducts(data.map((product) => ({ ...product, isLiked: false })));
+          setProducts(
+            data.map((product: Product) => ({ ...product, isLiked: false }))
+          ); // Product 타입 명시
         }
-        setTotalPages(Math.ceil(totalCount / pageSize)); // 전체 페이지 수 계산
-      } catch (err: any) {
+        setTotalPages(Math.ceil(totalCount / pageSize));
+      } catch (err) {
         setError("상품을 불러오는 데 실패했습니다.");
       } finally {
         setLoading(false);
@@ -148,20 +152,14 @@ export default function ProductList() {
     }
   };
 
-  const handleLikeToggle = async (
-    e: React.MouseEvent<HTMLButtonElement>,
-    productId: string,
-  ) => {
-    e.preventDefault();
-    e.stopPropagation();
-
+  // 좋아요 토글 함수
+  const toggleLike = async (product: Product) => {
     if (!auth?.isLoggedIn) {
       setShowLoginModal(true);
       return;
     }
 
-    const product = products.find((p) => p.id === productId);
-    if (!product) return;
+    const productId = Number(product.id); // string을 number로 변환
 
     try {
       if (product.isLiked) {
@@ -169,10 +167,8 @@ export default function ProductList() {
         if (response.success) {
           setProducts((prevProducts) =>
             prevProducts.map((p) =>
-              p.id === productId
-                ? { ...p, isLiked: false, likeCount: response.likeCount }
-                : p,
-            ),
+              p.id === product.id ? { ...p, isLiked: false } : p
+            )
           );
         } else {
           alert(response.message || "찜 취소에 실패했습니다.");
@@ -182,18 +178,15 @@ export default function ProductList() {
         if (response.success) {
           setProducts((prevProducts) =>
             prevProducts.map((p) =>
-              p.id === productId
-                ? { ...p, isLiked: true, likeCount: response.likeCount }
-                : p,
-            ),
+              p.id === product.id ? { ...p, isLiked: true } : p
+            )
           );
         } else {
           alert(response.message || "찜 추가에 실패했습니다.");
         }
       }
     } catch (error) {
-      console.error("찜 토글 실패:", error);
-      alert("찜 처리 중 오류가 발생했습니다.");
+      console.error("좋아요 토글 실패:", error);
     }
   };
 
@@ -258,7 +251,7 @@ export default function ProductList() {
                   size="icon"
                   variant="secondary"
                   className="absolute bottom-4 right-4 rounded-full opacity-90 hover:opacity-100"
-                  onClick={(e) => handleLikeToggle(e, product.id)}
+                  onClick={(e) => toggleLike(product)}
                 >
                   <Heart
                     className={`size-5 transition-all duration-300 ${

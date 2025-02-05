@@ -1,3 +1,5 @@
+"use client";
+
 import { Footer } from "@/components/layout/footer";
 import { ProductListHeader } from "@/feature/productList/productList-header";
 import ProductList from "@/feature/productList/productList";

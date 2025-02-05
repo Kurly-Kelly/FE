@@ -1,6 +1,5 @@
 "use client";
 import { useState, useEffect, useContext } from "react";
-import axios from "axios";
 import { Header } from "@/components/layout/header";
 import { AuthContext } from "@/context/AuthContext";
 import Link from "next/link";
@@ -18,6 +17,7 @@ interface CartItem {
   quantity: number;
   price: number;
   imageUrls: string[];
+  imgURL?: string;
   isSelected?: boolean;
 }
 
@@ -30,7 +30,8 @@ interface CartData {
 
 // 장바구니 컴포넌트
 export const ShoppingCart = () => {
-  const { isLoading: authLoading, isLoggedIn } = useContext(AuthContext); // AuthContext에서 로그인 상태 가져오기
+  const authContext = useContext(AuthContext);
+  const isLoggedIn = authContext?.isLoggedIn ?? false;
 
   const [cartData, setCartData] = useState<CartData | null>(null);
   const [loading, setLoading] = useState(true);
@@ -79,7 +80,7 @@ export const ShoppingCart = () => {
       } else {
         setCartData(response.data);
         setSelectedItems(
-          response.data.cartItems.map((item) => item.cartItemId),
+          response.data.cartItems.map((item) => item.cartItemId)
         );
       }
 
@@ -111,7 +112,7 @@ export const ShoppingCart = () => {
       const updatedCartItems = prev.cartItems.map((item) =>
         item.cartItemId === cartItemId
           ? { ...item, quantity: Math.max(newQuantity, 1) }
-          : item,
+          : item
       );
 
       const updatedTotalPrice = calculateTotalPrice(updatedCartItems);
@@ -178,7 +179,7 @@ export const ShoppingCart = () => {
     setSelectedItems((prev) =>
       prev.includes(cartItemId)
         ? prev.filter((id) => id !== cartItemId)
-        : [...prev, cartItemId],
+        : [...prev, cartItemId]
     );
   };
 
@@ -210,8 +211,8 @@ export const ShoppingCart = () => {
             headers: {
               Authorization: `Bearer ${token}`,
             },
-          }),
-        ),
+          })
+        )
       );
 
       setIsDeleteModalOpen(false);
@@ -236,7 +237,8 @@ export const ShoppingCart = () => {
       .reduce((total, item) => total + item.price * item.quantity, 0);
   };
 
-  if (authLoading || loading) return <div>Loading...</div>;
+  // loading 상태 체크
+  if (loading) return <div>Loading...</div>;
 
   // 로그인 인증이 되지 않은 사용자의 경우
   if (!isLoggedIn) {

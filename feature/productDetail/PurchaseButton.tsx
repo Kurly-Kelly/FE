@@ -70,9 +70,14 @@ export default function PurchaseButton({
   // 장바구니 담기 API 호출
   const handleAddToCartAndNavigate = async () => {
     try {
-      const token = localStorage.getItem("accessToken");
       if (!auth?.isLoggedIn) {
         setShowLoginModal(true);
+        return;
+      }
+
+      const token = localStorage.getItem("accessToken");
+      if (!token) {
+        alert("권한이 없습니다. 로그인 상태를 확인하세요.");
         return;
       }
 

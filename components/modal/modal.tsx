@@ -1,7 +1,6 @@
 "use client";
 
 import { Dialog, DialogContent } from "@/components/ui/dialog";
-import { Button } from "@/components/ui/button";
 
 interface ModalProps {
   isOpen: boolean; // 모달 열림 상태

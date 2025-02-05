@@ -131,7 +131,8 @@ export default function SuccessPage() {
               "Content-Type": "application/json",
               Authorization: `Bearer ${token}`,
             },
-          },
+            // eslint-disable-next-line prettier/prettier
+          }
         );
 
         const completeJson = await completeRes.data;

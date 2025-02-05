@@ -8,7 +8,6 @@ import Link from "next/link";
 import { useSearchParams } from "next/navigation";
 
 export default function FindIdSuccessPage() {
-  // 쿼리 파라미터 추출
   const searchParams = useSearchParams();
   const username = searchParams.get("username") || "unknown";
 
@@ -22,7 +21,7 @@ export default function FindIdSuccessPage() {
             href="/login"
             className="absolute left-4 top-1/2 -translate-y-1/2"
           >
-            <ChevronLeft className="h-6 w-6" />
+            <ChevronLeft className="size-6" />
           </Link>
         }
       />

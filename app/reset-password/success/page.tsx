@@ -1,3 +1,5 @@
+"use client";
+
 import { Header } from "@/components/layout/header";
 import { PageLayout } from "@/components/layout/pagelayout";
 import { ResetPasswordSuccess } from "@/feature/reset-password/reset-password-success";
