@@ -1,6 +1,7 @@
 import axios from "axios";
 const { NEXT_PUBLIC_SERVER_BASE_URL_DEV } = process.env;
-export const baseURL = NEXT_PUBLIC_SERVER_BASE_URL_DEV || "https://3.34.181.33";
+export const baseURL =
+  NEXT_PUBLIC_SERVER_BASE_URL_DEV || "https://3.36.171.210";
 
 const myApi = axios.create({
   baseURL,
