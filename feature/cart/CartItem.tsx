@@ -6,6 +6,7 @@ interface CartItemProps {
     cartItemId: number;
     productName: string;
     price: number;
+    discount: number;
     quantity: number;
     imgURL: string;
   };
@@ -53,7 +54,8 @@ export function CartItem({
         <div className="flex-1">
           <h3 className="text-sm font-medium">{item.productName}</h3>
           <p className="mt-1 text-sm text-gray-900">
-            {item.price.toLocaleString()}원
+            {(item.price - item.price * (item.discount / 100)).toLocaleString()}
+            원
           </p>
           <div className="mt-2 flex items-center gap-2">
             <button
