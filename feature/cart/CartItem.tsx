@@ -6,7 +6,6 @@ interface CartItemProps {
     cartItemId: number;
     productId: number;
     productName: string;
-    price: number;
     discount: number;
     quantity: number;
     price: number;
