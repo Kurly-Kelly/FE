@@ -10,6 +10,19 @@ const myApi = axios.create({
   },
 });
 
+// 요청 인터셉터: 모든 요청에 JWT 토큰 자동 포함
+myApi.interceptors.request.use(
+  (config) => {
+    const token = localStorage.getItem("accessToken");
+    if (token) {
+      config.headers.Authorization = `Bearer ${token}`;
+    }
+    return config;
+  },
+  (error) => {
+    return Promise.reject(error);
+  }
+);
 // axios.ts 파일 내에서 myApi 설정 이후에 추가
 myApi.interceptors.response.use(
   (response) => response,

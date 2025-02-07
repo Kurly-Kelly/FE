@@ -27,6 +27,7 @@ interface OrderItem {
   name: string;
   price: number;
   quantity: number;
+  discount: number;
 }
 
 interface CustomerInfo {
@@ -110,10 +111,15 @@ export default function OrderPage() {
     name: item.productName,
     price: item.price,
     quantity: item.quantity,
+    discount: item.discount,
   }));
 
   // 3) 결제금액 계산
-  const subtotal = items.reduce((sum, it) => sum + it.price * it.quantity, 0);
+  const subtotal = items.reduce(
+    (sum, it) =>
+      sum + (it.price - it.price * (it.discount / 100)) * it.quantity,
+    0,
+  );
   const shippingFee = 3000;
   // const discount = localUsedPoints;
   const total = subtotal + shippingFee;

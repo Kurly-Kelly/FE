@@ -1,6 +1,6 @@
 "use client";
 
-import { addToCart } from "@/feature/productDetail/ProductDetailButton-api"; // addToCart 함수 임포트
+import { addToCart } from "@/feature/productDetail/ProductDetailButton-api";
 import { useRouter } from "next/navigation";
 import axios from "axios";
 import { useContext, useEffect, useState } from "react";
@@ -38,9 +38,12 @@ export default function PurchaseButton({
   const [showLoginModal, setShowLoginModal] = useState(false);
   // "장바구니로 이동" 모달 상태
   const [showCartModal, setShowCartModal] = useState(false);
+  // 구매 수량 선택 모달 상태
+  const [showPurchaseModal, setShowPurchaseModal] = useState(false);
 
-  const goToPayment = () => {
-    router.push("/payment");
+  // 결제 페이지로 이동 (선택한 수량을 쿼리로 전달)
+  const goToPayment = (quantity: number) => {
+    router.push(`/directPayment?productId=${productId}&quantity=${quantity}`);
   };
 
   useEffect(() => {
@@ -100,9 +103,13 @@ export default function PurchaseButton({
     }
   };
 
-  // 구매하기 로직
+  // 구매하기 로직: 구매 수량 선택 모달 띄우기
   const handleBuyNow = () => {
-    goToPayment();
+    if (!auth?.isLoggedIn) {
+      setShowLoginModal(true);
+      return;
+    }
+    setShowPurchaseModal(true);
   };
 
   // 찜 토글 (좋아요)
@@ -120,7 +127,7 @@ export default function PurchaseButton({
 
     try {
       if (isLiked) {
-        // 이미 찜 -> 찜 취소
+        // 이미 찜 → 찜 취소
         await cancelLike(auth.userInfo!.username, productId);
         setIsLiked(false);
         setLikeCount((prev) => Math.max(prev - 1, 0));
@@ -137,85 +144,154 @@ export default function PurchaseButton({
   };
 
   return (
-    <div className="fixed inset-x-0 bottom-10 bg-gray-100">
-      <div className="mx-auto w-full max-w-[360px] bg-white">
-        <div className="flex items-center gap-3 px-4 py-3">
-          {/* 찜하기 버튼 */}
-          <button
-            onClick={handleLikeToggle}
-            className="flex size-12 flex-col items-center justify-center rounded-full border-2 border-gray-200 transition-all duration-300 hover:border-green-500 focus:outline-none focus:ring-2 focus:ring-green-500 focus:ring-offset-2"
-            aria-label={isLiked ? "찜 취소하기" : "찜하기"}
-          >
-            <Heart
-              className={`size-5 transition-all duration-300 ${
-                isLiked
-                  ? "scale-110 fill-green-500 text-green-500"
-                  : "text-gray-400 hover:text-green-500"
-              }`}
-            />
-            <span className="mt-1 text-xs font-medium text-gray-600">
-              {likeCount}
-            </span>
-          </button>
-
-          {/* 상품 상태에 따른 버튼 렌더링 */}
-          {productStatus === "UNAVAILABLE" ? (
-            /* 품절된 상품일 경우 */
+    <>
+      <div className="fixed inset-x-0 bottom-10 bg-gray-100">
+        <div className="mx-auto w-full max-w-[360px] bg-white">
+          <div className="flex items-center gap-3 px-4 py-3">
+            {/* 찜하기 버튼 */}
             <button
-              className="flex-1 cursor-not-allowed rounded bg-gray-400 py-4 text-white"
-              disabled
+              onClick={handleLikeToggle}
+              className="flex size-12 flex-col items-center justify-center rounded-full border-2 border-gray-200 transition-all duration-300 hover:border-green-500 focus:outline-none focus:ring-2 focus:ring-green-500 focus:ring-offset-2"
+              aria-label={isLiked ? "찜 취소하기" : "찜하기"}
             >
-              현재 품절된 상품입니다.
+              <Heart
+                className={`size-5 transition-all duration-300 ${
+                  isLiked
+                    ? "scale-110 fill-green-500 text-green-500"
+                    : "text-gray-400 hover:text-green-500"
+                }`}
+              />
+              <span className="mt-1 text-xs font-medium text-gray-600">
+                {likeCount}
+              </span>
             </button>
-          ) : (
-            /* 판매 중인 상품일 경우, 장바구니 + 구매하기 버튼 */
-            <>
-              {/* 장바구니 담기 버튼 */}
-              <button
-                onClick={handleAddToCartAndNavigate}
-                className="flex-1 rounded-full border border-gray-200 bg-gray-50 px-4 py-3.5 text-sm font-medium text-gray-700 hover:bg-gray-100 focus:outline-none focus:ring-2 focus:ring-gray-500 focus:ring-offset-2"
-              >
-                장바구니 담기
-              </button>
 
-              {/* 구매하기 버튼 */}
+            {/* 상품 상태에 따른 버튼 렌더링 */}
+            {productStatus === "UNAVAILABLE" ? (
+              /* 품절된 상품일 경우 */
               <button
-                onClick={handleBuyNow}
-                className="flex-1 rounded-full bg-green-500 px-4 py-3.5 text-sm font-medium text-white hover:bg-green-600 focus:outline-none focus:ring-2 focus:ring-green-500 focus:ring-offset-2"
+                className="flex-1 cursor-not-allowed rounded bg-gray-400 py-4 text-white"
+                disabled
               >
-                구매하기
+                현재 품절된 상품입니다.
               </button>
-            </>
-          )}
+            ) : (
+              /* 판매 중인 상품일 경우, 장바구니 + 구매하기 버튼 */
+              <>
+                {/* 장바구니 담기 버튼 */}
+                <button
+                  onClick={handleAddToCartAndNavigate}
+                  className="flex-1 rounded-full border border-gray-200 bg-gray-50 px-4 py-3.5 text-sm font-medium text-gray-700 hover:bg-gray-100 focus:outline-none focus:ring-2 focus:ring-gray-500 focus:ring-offset-2"
+                >
+                  장바구니 담기
+                </button>
+
+                {/* 구매하기 버튼 */}
+                <button
+                  onClick={handleBuyNow}
+                  className="flex-1 rounded-full bg-green-500 px-4 py-3.5 text-sm font-medium text-white hover:bg-green-600 focus:outline-none focus:ring-2 focus:ring-green-500 focus:ring-offset-2"
+                >
+                  구매하기
+                </button>
+              </>
+            )}
+          </div>
         </div>
+
+        {/* 로그인 필요 모달 */}
+        <SecondModal
+          open={showLoginModal}
+          onClose={() => setShowLoginModal(false)}
+          title="로그인이 필요합니다."
+          description="로그인 페이지로 이동하시겠습니까?"
+          confirmText="확인"
+          cancelText="취소"
+          onConfirm={() => {
+            setShowLoginModal(false);
+            router.push("/login");
+          }}
+        />
+        {/* 장바구니로 이동 모달 */}
+        <SecondModal
+          open={showCartModal}
+          onClose={() => setShowCartModal(false)}
+          title="장바구니에 추가되었습니다."
+          description="장바구니로 이동하시겠습니까?"
+          confirmText="이동"
+          cancelText="계속 쇼핑"
+          onConfirm={() => {
+            setShowCartModal(false);
+            router.push("/cart");
+          }}
+        />
       </div>
 
-      {/* 로그인 필요 모달 */}
-      <SecondModal
-        open={showLoginModal}
-        onClose={() => setShowLoginModal(false)}
-        title="로그인이 필요합니다."
-        description="로그인 페이지로 이동하시겠습니까?"
-        confirmText="확인"
-        cancelText="취소"
-        onConfirm={() => {
-          setShowLoginModal(false);
-          router.push("/login");
+      {/* 구매 수량 선택 모달 */}
+      <PurchaseQuantityModal
+        open={showPurchaseModal}
+        onClose={() => setShowPurchaseModal(false)}
+        onConfirm={(quantity) => {
+          setShowPurchaseModal(false);
+          goToPayment(quantity);
         }}
       />
-      {/* 장바구니로 이동 모달 */}
-      <SecondModal
-        open={showCartModal}
-        onClose={() => setShowCartModal(false)}
-        title="장바구니에 추가되었습니다."
-        description="장바구니로 이동하시겠습니까?"
-        confirmText="이동"
-        cancelText="계속 쇼핑"
-        onConfirm={() => {
-          setShowCartModal(false);
-          router.push("/cart");
-        }}
-      />
+    </>
+  );
+}
+
+// ★ 새로운 구매 수량 선택 모달 컴포넌트 ★
+function PurchaseQuantityModal({
+  open,
+  onClose,
+  onConfirm,
+}: {
+  open: boolean;
+  onClose: () => void;
+  onConfirm: (quantity: number) => void;
+}) {
+  const [quantity, setQuantity] = useState(1);
+
+  if (!open) return null;
+
+  return (
+    <div className="fixed inset-0 z-50 flex items-center justify-center bg-black bg-opacity-50">
+      <div className="w-[240px] max-w-sm rounded-lg bg-white p-6">
+        <h2 className="mb-4 text-xl font-semibold">구매 수량 선택</h2>
+        <div className="mb-4 flex items-center justify-center">
+          <button
+            onClick={() => setQuantity((q) => Math.max(q - 1, 1))}
+            className="border px-3 py-1"
+          >
+            -
+          </button>
+          <input
+            type="number"
+            min={1}
+            value={quantity}
+            onChange={(e) =>
+              setQuantity(Math.max(1, parseInt(e.target.value) || 1))
+            }
+            className="mx-2 w-16 border text-center"
+          />
+          <button
+            onClick={() => setQuantity((q) => q + 1)}
+            className="border px-3 py-1"
+          >
+            +
+          </button>
+        </div>
+        <div className="flex justify-end gap-4">
+          <button onClick={onClose} className="rounded border px-4 py-2">
+            취소
+          </button>
+          <button
+            onClick={() => onConfirm(quantity)}
+            className="rounded bg-green-500 px-4 py-2 text-white"
+          >
+            확인
+          </button>
+        </div>
+      </div>
     </div>
   );
 }
